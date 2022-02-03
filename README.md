@@ -2,12 +2,12 @@
 
 **This page is a work in progress!**
 
-The Reflow-Controller was built to control different kinds of reflow ovens, hotplates and whatever is coming to my mind in the future. It is based on the ESP32-S2 [datasheet](https://www.espressif.com/sites/default/files/documentation/esp32-s2_datasheet_en.pdf) and thus can be programmed to be used with a WiFi App or whatever. Nevertheless, it has an onboard OLED display and three buttons included.
+The Reflow-Controller was built to control different kinds of reflow ovens, hotplates and whatever is coming to my mind in the future. It is based on the ESP32-S2 ([datasheet](https://www.espressif.com/sites/default/files/documentation/esp32-s2_datasheet_en.pdf)) and thus can be programmed to be used with a WiFi App or whatever. Nevertheless, it has an onboard OLED display and three buttons included to be used as a standalone solution either.
 
-The PCB occupies these features:
+Features of the PCB:
 
 - ESP32-S2 MCU
-- 2x MAX6675 Thermocouples
+- 2x MAX6675 thermocouple sensor input
 - 2x Fan output (inductive loads/flyback diodes included)
 - 2x Solid state relay output
 - 3x User button
@@ -15,7 +15,7 @@ The PCB occupies these features:
 - 1x Buzzer
 - 1x Servo motor output
 - 0,96" OLED display
-- Optional ACDC converter (HLK-PM05, HLK-PM12) which can be break off if it isn't used
+- Optional ACDC converter (HLK-PM05, HLK-PM12) which can be separated if not used
 - Optional I2C (QWIIC) connector
 
 
@@ -49,10 +49,13 @@ OLED RST | GPIO45 | Output
 
 ## ACDC power supply
 
-The top part of the PCB can be used as a power supply for the whole board as well as the higher voltage outputs (SSRs, Fans). It comes with an LM1117 3.3v regulator which can be feed with max 15v. The output voltage of the ACDC power supply is the voltage for the SSR and the fan output channels.
-The HLK-PMXX module for the top part of the PCB can be placed in two ways - on the bottom side and on the top side. This gives the possibility to mount the whole PCB behind an acrylic glass (or whatever) so that the buttons as well as the OLED display are accessible. Therefore the two jumpers can select which signal is VCC and which is GND. **Keep in mind that there are high voltage pins on the top side of the PCB when mounting the power supply on the bottom side! I've designed a 3D-printable cover for the top part, so that these pins cannot be touched accidentally. (Should be mounted in both cases)**
+The upper part of the PCB can be used as a power supply for the whole board as well as the higher voltage outputs (SSRs, Fans). If not used, it can be separated from the main board and may be used in another project where an ACDC adapter is needed.
 
-The board can also be powered via USB-C, but keep in mind that the output channels are not powered in this case (initially it is just available for flashing the board).
+The main board is equipped with an LM1117 3.3v voltage regulator which can be feed with 15v max. The output voltage of the ACDC power supply is the voltage for the SSR and the fan output channels. If you wanna use a servo motor in your project, make sure that the power supply has the correct voltage for the motor (probably 5v).
+
+The HLK-PMXX module for the upper part of the PCB can be placed in two ways - on the bottom or on the top side. This gives the possibility to mount the whole PCB behind an acrylic glass (or whatever) so that the buttons as well as the OLED display are accessible. The two jumpers can then be used to select which signal is VCC and which one is GND. **Keep in mind that there are high voltage pins on the top side of the PCB when mounting the power supply on the bottom side! I've designed a 3D-printable cover, so that these pins cannot be touched accidentally. (Should be mounted in both cases)**
+
+The board can also be powered via USB-C, but keep in mind that the output channels and the servo motor are not powered in this case (initially it is just available for flashing the board).
 
 
 ## Reflow Profiles
