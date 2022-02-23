@@ -2,6 +2,8 @@
 
 **This page is a work in progress!**
 
+<img src="docs/reflowcontroller_board_top.png" width="450px"></a>
+
 The Reflow-Controller was built to control different kinds of reflow ovens, hotplates and whatever is coming to my mind in the future. It is based on the ESP32-S2 ([datasheet](https://www.espressif.com/sites/default/files/documentation/esp32-s2_datasheet_en.pdf)) and thus can be programmed to be used with a WiFi App or whatever. Nevertheless, it has an onboard OLED display and three buttons included to be used as a standalone solution either.
 
 Features of the PCB:
@@ -58,4 +60,8 @@ The HLK-PMXX module for the upper part of the PCB can be placed in two ways - on
 The board can also be powered via USB-C, but keep in mind that the output channels and the servo motor are not powered in this case (initially it is just available for flashing the board).
 
 
-## Reflow Profiles
+## Case & Spacer
+
+As I wanna hide the whole PCB behind an acrylic glass (transparent) I've designed a simple case for the high voltage pins at the top and a spacer at the bottom of the PCB. In the end, the acrylic glass will be laser-cutted with some bridges for the buttons. Distance between PCB and acrylic glass is 5mm.
+
+<img src="docs/reflowcontroller_hvcase_botspacer.png" width="450px"></a>
