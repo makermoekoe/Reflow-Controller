@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="yes"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
+<grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="yes" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="no" active="no"/>
 <layer number="2" name="Route2" color="16" fill="1" visible="no" active="no"/>
@@ -8039,7 +8039,7 @@ Solder type</description>
 <wire x1="238.76" y1="256.54" x2="238.76" y2="132.08" width="0.1524" layer="97"/>
 <wire x1="99.06" y1="71.12" x2="99.06" y2="5.08" width="0.1524" layer="97"/>
 <wire x1="152.4" y1="71.12" x2="152.4" y2="5.08" width="0.1524" layer="97"/>
-<text x="314.96" y="251.46" size="2.54" layer="94" font="vector" align="center">ESP32 PICO D4</text>
+<text x="314.96" y="251.46" size="2.54" layer="94" font="vector" align="center">ESP32 S2</text>
 <wire x1="231.14" y1="71.12" x2="231.14" y2="5.08" width="0.1524" layer="97"/>
 <wire x1="289.56" y1="71.12" x2="289.56" y2="25.4" width="0.1524" layer="97"/>
 <text x="261.62" y="223.52" size="1.778" layer="91">matching
