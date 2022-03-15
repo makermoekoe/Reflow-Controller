@@ -28,6 +28,7 @@
 #define BTN2_PIN        39
 #define BTN3_PIN        40
 
+
 #define NUM_LEDS        1
 CRGB leds[NUM_LEDS];
 
@@ -35,11 +36,16 @@ CRGB leds[NUM_LEDS];
 #define HEIGHT 64
 U8G2_SSD1306_128X64_NONAME_F_HW_I2C u8g2(U8G2_R0, /* reset=*/ OLED_RST_PIN, /* clock=*/ SCL_PIN, /* data=*/ SDA_PIN);
 
-double Setpoint, Input, Output;
-double Kp = 5, Ki = 0.02, Kd = 0.15;
-PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
+double pid_setpoint, pid_input, pid_output;
+double Kp = 25, Ki = 0.3, Kd = 0.05;
+double Kpr = 50, Kir = 0.1, Kdr = 0;
+PID pid(&pid_input, &pid_output, &pid_setpoint, Kp, Ki, Kd, DIRECT);
+PID pid_reflow(&pid_input, &pid_output, &pid_setpoint, Kpr, Kir, Kdr, DIRECT);
 
-int dutyCycle = 0;
+int window_size = 3000;
+unsigned long window_start_time;
+
+int dutyCycle = 100;
 
 const int PWMFreq = 20000;                                //50hz
 const int PWMChannel = 0;
@@ -48,17 +54,48 @@ const int PWMResolution = 10;                       //12 bits 0-4095
 
 MAX6675 thermocouple1(CLK_PIN, CS_MAX2_PIN, MISO_PIN);
 MAX6675 thermocouple2(CLK_PIN, CS_MAX1_PIN, MISO_PIN);
+
 float current_temperature1 = 0.0;
 float current_temperature2 = 0.0;
 
-float temperature_setpoint = 0.0;
-float temperature_setpoint_const = 50.0;
+float pwm_out1 = 0.0;
+float pwm_out2 = 0.0;
 
-float temperature_reflow = 200.0;
-float temperature_soak = 130.0;
+bool running_reflow = false;
+bool init_reflow = false;
 
-bool start_reflow = false;
-bool start_const = false;
+bool running_const = false;
+bool init_const = false;
+
+bool rampup_reflow = true;
+bool rampup_const = true;
+bool rampup_const_close = true;
+bool preheat_done = false;
+bool reflow_done = false;
+bool buzzer_state = true;
+
+
+
+// Soldering profile
+float temperature_setpoint_reflow = 0.0;
+float temperature_setpoint_const = 100.0;
+
+float temperature_reflow = 220.0;
+float temperature_soak = 150.0;
+
+int profile_counter = 0;
+int temp_reflow_profile1[] = {
+  30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,
+  78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,
+  120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,150,150,150,150,150,
+  150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,
+  150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,150,
+  150,150,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,
+  184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,211,212,212,213,213,214,214,215,
+  215,216,216,217,217,218,218,219,219,220,220,219,218,217,216,215,214,213,212,211,210,209,208,207,206,205,204,203,202,201,200,
+};
+
+
 
 
 // Set used fonts with width and height of each character
@@ -92,9 +129,11 @@ display_page page_const_temp = {"Const Temp", &temperature_setpoint_const, "", t
 display_page page_peak_temp = {"Peak Temp", &temperature_reflow, "", true};
 display_page page_soak_temp = {"Soak Temp", &temperature_soak, "", true};
 display_page page_start_const = {"Start Const", &placeholder, "Start Const", false};
+display_page page_manual_out1 = {"Set PWM1", &pwm_out1, "", true};
+display_page page_manual_out2 = {"Set PWM2", &pwm_out2, "", true};
 
 // Menu and Pages
-#define N_PAGES 5
+#define N_PAGES 7
 int current_page = 0;
 bool new_page = true;
 unsigned long t_new_page = 0;
@@ -106,10 +145,12 @@ struct page {
 
 page pages[N_PAGES] = {
   {0, page_start_reflow},
-  {1, page_const_temp},
+  {1, page_start_const},
   {2, page_peak_temp},
   {3, page_soak_temp},
-  {4, page_start_const},
+  {4, page_const_temp},
+  {5, page_manual_out1},
+  {6, page_manual_out2},
 };
 
 // Alignment for the OLED display
@@ -153,15 +194,10 @@ box bot = {0, mid_main.top + mid_main.height, 128, 10, 0, false};
 // Update the OLED display with the three boxes according to the given pages
 void update_display(){
   u8g2.clearBuffer();
-
-  // top.draw(false);
-  // top_left.draw(false);
-  // top_right.draw(false);
   mid_main.draw(false);
-  // bot.draw(false);
 
   if(new_page){
-    if(millis() <= t_new_page + 800){
+    if(millis() <= t_new_page + 500){
       mid_main.print_text(pages[current_page].page.title, font_m, Center, 0.5);
     }
     else{
@@ -174,15 +210,14 @@ void update_display(){
     top_right.print_text(String(current_temperature2, 0) + "C", font_xs, Center, 0.5);
     bot.print_text(msg2display_bot, font_xs, Center, 0.5);
 
-    if(!pages[current_page].page.is_value) mid_main.print_text(pages[current_page].page.msg, font_s, Center, 0.5);
-    else mid_main.print_text(String(*pages[current_page].page.value, 1) + "C", font_s, Center, 0.5);
-
-    if(false){ //reflow running
-      top.print_text(msg2display_top, font_xs, Center, 0.5);
-    }
+    if(pages[current_page].page.is_value) mid_main.print_text(String(*pages[current_page].page.value, 1) + "C", font_s, Center, 0.5);
     else{
-      top.print_text(msg2display_top, font_xs, Center, 0.5);
+      mid_main.print_text(("Cur Temp: " + String(current_temperature1) + " C"), font_s, Left, 0.21);
+      mid_main.print_text(("Set Temp: " + String(pid_setpoint) + " C"), font_s, Left, 0.5);
+      mid_main.print_text(("Progress: " + String(float(profile_counter)/3.0, 0) + " %"), font_s, Left, 0.8);
     }
+
+    top.print_text(msg2display_top, font_xs, Center, 0.5);
   }
   u8g2.sendBuffer();
 }
@@ -201,12 +236,20 @@ void setup() {
   pinMode(CS_MAX2_PIN, OUTPUT);
   digitalWrite(CS_MAX1_PIN, LOW);
   digitalWrite(CS_MAX2_PIN, LOW);
+
+  pinMode(SSR1_PIN, OUTPUT);
+  pinMode(SSR2_PIN, OUTPUT);
+  digitalWrite(SSR1_PIN, LOW);
+  digitalWrite(SSR2_PIN, LOW);
   
 
   delay(100);
   FastLED.addLeds<APA102, APA102_SDI_PIN, APA102_CLK_PIN, BGR>(leds, NUM_LEDS);
   FastLED.setBrightness(100);
   delay(100);
+
+  leds[0] = CRGB::Black;
+  FastLED.show();
 
   pinMode(BUZZER_PIN, OUTPUT);
   digitalWrite(BUZZER_PIN, LOW);
@@ -231,6 +274,16 @@ void setup() {
 
 unsigned long t_thermo = millis();
 unsigned long t_display = millis() + 100;
+unsigned long t_pid_on = millis() + 400;
+unsigned long t_start_reflow = millis();
+unsigned long t_reflow_pid = millis() + 300;
+unsigned long t_reflow_control = millis() + 500;
+
+unsigned long t_const_pid = millis() + 300;
+unsigned long t_const_control = millis() + 500;
+unsigned long t_rampup = millis() + 600;
+unsigned long t_profile_counter = millis() + 800;
+unsigned long t_reflow_finish = millis() + 900;
 
 void loop() {
   if(digitalRead(BTN1_PIN) == 1){
@@ -246,6 +299,7 @@ void loop() {
     unsigned long t_btn_pressed = millis();
     int wait_time_increase = 300;
     bool set_process = false;
+
     while (digitalRead(BTN1_PIN) == 1){
       if(millis() >= t_btn_pressed + wait_time_increase && !set_process){
         wait_time_increase = 80;
@@ -260,12 +314,14 @@ void loop() {
           leds[0] = CRGB::Green;
           FastLED.show();
           if(current_page == 0) {
-            start_reflow = !start_reflow;
-            msg2display_top = start_reflow ? "Reflow" : "";
+            running_reflow = !running_reflow;
+            init_reflow = true;
+            msg2display_top = running_reflow ? "Reflow" : "";
           }
-          else{
-           start_const = !start_const;
-           msg2display_top = start_const ? "Const" : "";
+          else if(current_page == 1){
+           running_const = !running_const;
+           init_const = true;
+           msg2display_top = running_const ? "Const" : "";
           }
           set_process = true;
         }
@@ -289,6 +345,7 @@ void loop() {
     unsigned long t_btn_pressed = millis();
     int wait_time_increase = 300;
     bool set_process = false;
+    
     while (digitalRead(BTN2_PIN) == 1){
       if(millis() >= t_btn_pressed + wait_time_increase && !set_process){
         leds[0] = CRGB::Orange;
@@ -298,18 +355,22 @@ void loop() {
         t_btn_pressed = millis();
 
         if(pages[current_page].page.is_value){
+          leds[0] = CRGB::Orange;
+          FastLED.show();
           *pages[current_page].page.value = *pages[current_page].page.value + 5.0;
         }
         else{
           leds[0] = CRGB::Green;
           FastLED.show();
           if(current_page == 0) {
-            start_reflow = !start_reflow;
-            msg2display_top = start_reflow ? "Reflow" : "";
+            running_reflow = !running_reflow;
+            init_reflow = true;
+            msg2display_top = running_reflow ? "Reflow" : "";
           }
-          else{
-            start_const = !start_const;
-            msg2display_top = start_const ? "Const" : "";
+          else if(current_page == 1){
+            running_const = !running_const;
+            init_const = true;
+            msg2display_top = running_const ? "Const" : "";
           }
           set_process = true;
         }
@@ -342,16 +403,207 @@ void loop() {
   }
 
 
+
+  if(init_reflow){
+    init_reflow = false;
+
+    if(running_reflow){
+      t_start_reflow = millis();
+      profile_counter = 0;
+      preheat_done = false;
+      reflow_done = false;
+      pid_setpoint = temp_reflow_profile1[0];
+
+      pid_reflow.SetOutputLimits(0, 500);
+      pid_reflow.SetMode(AUTOMATIC);
+      leds[0] = CRGB::Yellow;
+      FastLED.show();
+    }
+    else{
+      msg2display_bot = "";
+      digitalWrite(SSR1_PIN, LOW);
+      leds[0] = CRGB::Black;
+      FastLED.show();
+    }
+  }
+
+
+  if(running_reflow && !preheat_done){
+    if(current_temperature1 < temp_reflow_profile1[0]){
+      if(millis() >= t_reflow_control + 500){
+        t_reflow_control = millis();
+        digitalWrite(SSR1_PIN, !digitalRead(SSR1_PIN));
+        leds[0] = digitalRead(SSR1_PIN) ? CRGB::Blue : CRGB::Yellow; 
+        FastLED.show();
+        t_pid_on = millis();
+      }
+    }
+    else{
+      preheat_done = true;
+      t_profile_counter = millis();
+    }
+  }
+
+  while(reflow_done){
+    if(millis() > t_reflow_finish + 1000){
+      t_reflow_finish = millis();
+      buzzer_state = !buzzer_state;
+      ledcWrite(PWMChannel, buzzer_state ? 500 : 0);
+      leds[0] = CRGB::Green; 
+      FastLED.show();
+    }
+
+    if(digitalRead(BTN1_PIN) == 1 || digitalRead(BTN2_PIN) == 1 || digitalRead(BTN3_PIN) == 1){
+      reflow_done = false;
+      ledcWrite(PWMChannel, 0);
+      leds[0] = CRGB::Black; 
+      FastLED.show();
+      msg2display_bot = "Reflow done! Press button!";
+      while(digitalRead(BTN1_PIN) == 1 || digitalRead(BTN2_PIN) == 1 || digitalRead(BTN3_PIN) == 1){ 
+        delay(100); 
+      }
+    }
+  }
+
+  
+
+  if(running_reflow && preheat_done){
+    int pid_error = int(pid_setpoint) - int(current_temperature1);
+
+    if(millis() >= t_reflow_pid + 200){
+      t_const_pid = millis();
+      pid_setpoint = temp_reflow_profile1[profile_counter];
+      pid_input = current_temperature1;
+      pid_reflow.Compute();
+      msg2display_bot = String(pid_output) + ", " + String(pid_setpoint) + ", " + String(pid_error) + ", " + String(profile_counter) + "/300";// + ", " + String(window_start_time);
+    }
+
+    if(millis() >= t_reflow_control + 500){
+      t_reflow_control = millis();
+      
+      if(pid_output > 50){
+        digitalWrite(SSR1_PIN, HIGH);
+        leds[0] = CRGB::Red;
+        FastLED.show();
+        t_pid_on = millis();
+      }
+    }
+
+    if(millis() > t_pid_on + pid_output && digitalRead(SSR1_PIN)){
+      digitalWrite(SSR1_PIN, LOW);
+      leds[0] = CRGB::Yellow;
+      FastLED.show();
+    }
+
+    if(millis() >= t_profile_counter + 1000){
+      t_profile_counter += 1000;
+      profile_counter++;
+      if(profile_counter > 300){
+        ledcWrite(PWMChannel, 500);
+        buzzer_state = true;
+        running_reflow = false;
+        t_reflow_finish = millis();
+        reflow_done = true;
+        digitalWrite(SSR1_PIN, LOW);
+        leds[0] = CRGB::Yellow;
+        FastLED.show();
+      }
+    }
+  }
+
+
+  if(init_const){
+    init_const = false;
+
+    if(running_const){
+      pid_setpoint = temperature_setpoint_const;
+      rampup_const = true;
+
+      pid.SetOutputLimits(0, 1000);
+      pid.SetMode(AUTOMATIC);
+      leds[0] = CRGB::Yellow;
+      FastLED.show();
+    }
+    else{
+      msg2display_bot = "";
+      digitalWrite(SSR1_PIN, LOW);
+      leds[0] = CRGB::Black;
+      FastLED.show();
+    }
+  }
+
+
+  if(running_const){
+    int pid_error = int(pid_setpoint) - int(current_temperature1);
+
+    if(pid_error < 5 && pid_error > -5 && rampup_const_close){
+      rampup_const_close = false;
+      t_rampup = millis();
+    }
+
+    if(millis() >= t_const_pid + 200){
+      t_const_pid = millis();
+      pid_input = current_temperature1;
+      pid.Compute();
+      msg2display_bot = String(pid_output) + ", " + String(pid_error) + ", " + String(rampup_const);// + ", " + String(window_start_time);
+    }
+
+    if(millis() >= t_const_control + 2000){
+      t_const_control = millis();
+      
+      if(rampup_const){
+        if(pid_error < 0){
+          rampup_const = false;
+          pid.SetOutputLimits(0, 300);
+
+          ledcWrite(PWMChannel, 500);
+          delay(200);
+          ledcWrite(PWMChannel, 0); 
+        }
+        else if(pid_error < 10){
+          pid.SetOutputLimits(0, 150);
+        }
+        else if(pid_error < 20){
+          pid.SetOutputLimits(0, 300);
+        }
+
+        if(millis() > t_rampup + 10000 && !rampup_const_close){
+          rampup_const = false;
+          pid.SetOutputLimits(0, 300);
+
+          ledcWrite(PWMChannel, 500);
+          delay(200);
+          ledcWrite(PWMChannel, 0); 
+        }
+      }
+      
+      if(pid_output > 50){
+        digitalWrite(SSR1_PIN, HIGH);
+        leds[0] = CRGB::Red;
+        FastLED.show();
+        t_pid_on = millis();
+      }
+    }
+
+    if(millis() > t_pid_on + pid_output && digitalRead(SSR1_PIN)){
+      digitalWrite(SSR1_PIN, LOW);
+      leds[0] = CRGB::Yellow;
+      FastLED.show();
+    }
+  }
+
+
+
   if(millis() >= t_display + 500){
     t_display = millis();
     update_display();
   }
 
   
-  if(millis() >= t_thermo + 500){
+  if(millis() >= t_thermo + 200){
     t_thermo = millis();
-    current_temperature1 = random(50, 300);//thermocouple1.readCelsius();
-    current_temperature2 = random(50, 300);//thermocouple2.readCelsius();
+    current_temperature1 = thermocouple1.readCelsius();//random(50, 300);//
+    current_temperature2 = thermocouple2.readCelsius();//random(50, 300);//thermocouple2.readCelsius();
     val1 = float(random(50,300));
   }
 }
