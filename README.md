@@ -65,3 +65,10 @@ The board can also be powered via USB-C, but keep in mind that the output channe
 As I wanna hide the whole PCB behind an acrylic glass (transparent) I've designed a simple case for the high voltage pins at the top and a spacer at the bottom of the PCB. In the end, the acrylic glass will be laser-cutted with some bridges for the buttons. Distance between PCB and acrylic glass is 5mm.
 
 <img src="docs/reflowcontroller_hvcase_botspacer.png" width="450px"></a>
+
+
+## Assembled reflow oven
+
+<img src="docs/reflowoven_complete.JPG" width="450px"></a>
+
+<img src="docs/reflowoven_display_user.JPG" width="450px"></a>
