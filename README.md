@@ -1,7 +1,5 @@
 # Reflow-Controller
 
-**This page is a work in progress!**
-
 <img src="docs/reflowcontroller_board_top.png" width="450px"></a>
 
 The Reflow-Controller was built to control different kinds of reflow ovens, hotplates and whatever is coming to my mind in the future. It is based on the ESP32-S2 ([datasheet](https://www.espressif.com/sites/default/files/documentation/esp32-s2_datasheet_en.pdf)) and thus can be programmed to be used with a WiFi App or whatever. Nevertheless, it has an onboard OLED display and three buttons included to be used as a standalone solution either.
