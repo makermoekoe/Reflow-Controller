@@ -6,6 +6,31 @@ The Reflow-Controller was built to control different kinds of reflow ovens, hotp
 
 The [Youtube video](https://youtu.be/nffLDqJwJ3Q) shows the assembly of a complete reflow oven system and the first tests.
 
+Build & flash :
+
+Using Visual Studio : Import "code" folder as project folder. Connect the pcb via usb, put the S1 switch to the lower position, hold and press GPIO0-button while resetting with the reset-button. ESP32 should come up as a serial port device. Select that corresponding port for flashing.
+Press compile & upload button.
+
+Using Arduino IDE :
+Import main.cpp file contents as a new sketch.
+Add "https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json" as additional board manager URL in Arduino IDE preferences.
+Then select ESP32S2-Dev Module as board in Arduino. You can make all ESP32-related flash & chip configs there too. The settings I use are :
+-"Use CDC on boot" - Enabled
+-"CPU Frequency" - 240MHz
+-"Core Debug Level" - Warn
+
+All others left by default / select the ones you think fits best. Currently no SPIFFS flash is being used - but I am working on usb/wifi connection functionality right now.
+Libraries required as dependency for the projhect in Arduino (as for 2.0.3 version I currently use, install them via Arduino Library Manager) :
+- PID by Brett Beauregard - v 1.2.1
+- FastLED by Daniel Garcia - v 3.5.0
+- U8G2 by Oliver Kraus - v 2.33.15
+- MAX6675 Library by Adafruit - v 1.1.0
+- Smoothed by Matthew Fryer - v 1.2
+
+Lib-versions are the latest ones when writing this.
+
+At the time of writing this, I did not yet find out, how to make the esptool.py settings in Visual Studio Code to be able to make the ESP32 chip settings (USB-CDC, SPIFFS etc etc). Therefore I currently use Arduino 2.0.3 IDE myself. Visual Studio Code has the advantage though, not to have to download&install dependencies (libraries) manually though. If anybody share some light into how to make these settings correctly in Visual Studio Code - you are mostly welcome to add this info by posting to issues section. TY.
+
 Features of the PCB:
 
 - ESP32-S2 MCU
