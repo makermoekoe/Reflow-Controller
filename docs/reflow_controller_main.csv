@@ -1,5 +1,5 @@
 Qty;Value;Device;Package;Parts;Description;POPULARITY;SPICEPREFIX
-8;;MOLEX_2MM_2P;MOLEX_2MM_2P;-OUT+,OUT1,OUT2,SSR1,SSR2,TEMP1,TEMP2,VCC;Molex 1x2Pin Header Straight Plugin, e.g. C133060 on lcsc.com;;
+8;;MOLEX_2MM_2P;MOLEX_2MM_2P;-OUT+ OUT1 OUT2 SSR1 SSR2 TEMP1 TEMP2 VCC;Molex 1x2Pin Header Straight Plugin, e.g. C133060 on lcsc.com;;
 3;;PINHD-1X02_2.00;1X02M;B1,B2,B3;2.00 pitch PINHEADER – can be left empty;;
 1;;PINHD-1X03_2.54;1X03;SERVO;2.54 pitch PINHEADER – can be left empty;;
 1;;QWIIC_CONNECTORJS-1MM;1X04_1MM_RA;J2;SparkFun I2C Standard Qwiic Connector (I ordered Adafruit Accessories JST SH 4-pin Right Angle Connector in 10 pack from mouser);;
