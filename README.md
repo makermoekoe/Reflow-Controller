@@ -6,7 +6,7 @@ The Reflow-Controller was built to control different kinds of reflow ovens, hotp
 
 The [Youtube video](https://youtu.be/nffLDqJwJ3Q) shows the assembly of a complete reflow oven system and the first tests.
 
-Build & flash :
+[bold]Build & flash :[/bold]
 
 Using Visual Studio : Import "code" folder as project folder. Connect the pcb via usb, put the S1 switch to the lower position, hold and press GPIO0-button while resetting with the reset-button. ESP32 should come up as a serial port device. Select that corresponding port for flashing.
 Press compile & upload button.
