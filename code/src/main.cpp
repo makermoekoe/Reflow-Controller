@@ -327,25 +327,20 @@ void i2cscan()
 
 void setup() {
   Serial.begin(115200);
-  Serial.println(F("Starting up"));
-  Serial.println(F("Setting up buttons..."));
   pinMode(BTN1_PIN, INPUT);
   pinMode(BTN2_PIN, INPUT);
   pinMode(BTN3_PIN, INPUT);
 
-  Serial.println(F("Setting CS for MAX6675s..."));
   pinMode(CS_MAX1_PIN, OUTPUT);
   pinMode(CS_MAX2_PIN, OUTPUT);
   digitalWrite(CS_MAX1_PIN, LOW);
   digitalWrite(CS_MAX2_PIN, LOW);
 
-  Serial.println(F("Setting up SSR pins..."));
   pinMode(SSR1_PIN, OUTPUT);
   pinMode(SSR2_PIN, OUTPUT);
   digitalWrite(SSR1_PIN, LOW);
   digitalWrite(SSR2_PIN, LOW);
 
-  Serial.println(F("Setting up Adafruit LED"));
   delay(100);
   FastLED.addLeds<APA102, APA102_SDI_PIN, APA102_CLK_PIN, BGR>(leds, NUM_LEDS);
   FastLED.setBrightness(100);
