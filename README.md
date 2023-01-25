@@ -13,6 +13,7 @@ Press compile & upload button.
 Using Arduino IDE :
 Import main.cpp file contents as a new sketch.
 Add "https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_dev_index.json" as additional board manager URL in Arduino IDE preferences.
+Connect the pcb via usb, put the S1 switch to the lower position, hold and press GPIO0-button while resetting with the reset-button. ESP32 should come up as a serial port device. Select that corresponding port for flashing in Arduino (Port setting where the board selection is also located, in "Tools" - Menu)
 Then select ESP32S2-Dev Module as board in Arduino. You can make all ESP32-related flash & chip configs there too. The settings I use are :
 -"Use CDC on boot" - Enabled
 -"CPU Frequency" - 240MHz
