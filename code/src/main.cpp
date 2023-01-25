@@ -28,7 +28,6 @@
 #define BTN2_PIN        39
 #define BTN3_PIN        40
 
-
 #define NUM_LEDS        1
 CRGB leds[NUM_LEDS];
 
@@ -45,7 +44,11 @@ PID pid_reflow(&pid_input, &pid_output, &pid_setpoint, Kpr, Kir, Kdr, DIRECT);
 
 int dutyCycle = 100;
 
-const int PWMFreq = 20000;                                //50hz
+const int BuzzerPWMFreq = 2000;
+const int BuzzerPWMChannel = 1;
+const int BuzzerPWMResolution = 8;
+
+const int PWMFreq = 20000;                          //50hz
 const int PWMChannel = 0;
 const int PWMResolution = 10;                       //12 bits 0-4095
 
@@ -71,8 +74,6 @@ bool rampup_const_close = true;
 bool preheat_done = false;
 bool reflow_done = false;
 bool buzzer_state = true;
-
-
 
 // Soldering profile
 float temperature_setpoint_reflow = 0.0;
@@ -185,9 +186,10 @@ display_page page_soak2_temp = {"Soak2 Temp", &temperature_soak2, "", true};
 display_page page_cooling_temp = {"Cooling Temp", &temperature_cooling, "", true};
 display_page page_manual_out1 = {"Set PWM1", &pwm_out1, "", true};
 display_page page_manual_out2 = {"Set PWM2", &pwm_out2, "", true};
+display_page page_i2cscan = {"Start I2C Scan", &placeholder, "Start I2C Scan", false};
 
 // Menu and Pages
-#define N_PAGES 10
+#define N_PAGES 11
 int current_page = 0;
 bool new_page = true;
 unsigned long t_new_page = 0;
@@ -208,6 +210,7 @@ page pages[N_PAGES] = {
   {7, page_const_temp},
   {8, page_manual_out1},
   {9, page_manual_out2},
+  {10, page_i2cscan},
 };
 
 // Alignment for the OLED display
@@ -281,26 +284,68 @@ void update_display(){
   u8g2.sendBuffer();
 }
 
-
+void i2cscan()
+{
+  byte error, address;
+  int nDevices;
+ 
+  Serial.println("Scanning...");
+ 
+  nDevices = 0;
+  for(address = 1; address < 127; address++ )
+  {
+    // The i2c_scanner uses the return value of
+    // the Write.endTransmisstion to see if
+    // a device did acknowledge to the address.
+    Wire.beginTransmission(address);
+    error = Wire.endTransmission();
+ 
+    if (error == 0)
+    {
+      Serial.print("I2C device found at address 0x");
+      if (address<16)
+        Serial.print("0");
+      Serial.print(address,HEX);
+      Serial.println("  !");
+      nDevices++;
+    }
+    else if (error==4)
+    {
+      Serial.print("Unknown error at address 0x");
+      //USBSerial.print("Unknown error at address 0x");
+      if (address<16)
+        Serial.print("0");
+      Serial.println(address,HEX);
+    }    
+  }
+  if (nDevices == 0) {
+    Serial.println("No I2C devices found\n");
+  }
+  else
+    Serial.println("done\n");
+}
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("start");
-
+  Serial.println(F("Starting up"));
+  Serial.println(F("Setting up buttons..."));
   pinMode(BTN1_PIN, INPUT);
   pinMode(BTN2_PIN, INPUT);
   pinMode(BTN3_PIN, INPUT);
 
+  Serial.println(F("Setting CS for MAX6675s..."));
   pinMode(CS_MAX1_PIN, OUTPUT);
   pinMode(CS_MAX2_PIN, OUTPUT);
   digitalWrite(CS_MAX1_PIN, LOW);
   digitalWrite(CS_MAX2_PIN, LOW);
 
+  Serial.println(F("Setting up SSR pins..."));
   pinMode(SSR1_PIN, OUTPUT);
   pinMode(SSR2_PIN, OUTPUT);
   digitalWrite(SSR1_PIN, LOW);
   digitalWrite(SSR2_PIN, LOW);
 
+  Serial.println(F("Setting up Adafruit LED"));
   delay(100);
   FastLED.addLeds<APA102, APA102_SDI_PIN, APA102_CLK_PIN, BGR>(leds, NUM_LEDS);
   FastLED.setBrightness(100);
@@ -309,24 +354,24 @@ void setup() {
   leds[0] = CRGB::Black;
   FastLED.show();
 
-  pinMode(BUZZER_PIN, OUTPUT);
-  digitalWrite(BUZZER_PIN, LOW);
-
   ledcSetup(PWMChannel, PWMFreq, PWMResolution);
-  ledcAttachPin(BUZZER_PIN, PWMChannel);
   ledcWrite(PWMChannel, dutyCycle);
 
-  ledcWrite(PWMChannel, 500);
+  pinMode(BUZZER_PIN, OUTPUT);
+  digitalWrite(BUZZER_PIN, LOW);
+  ledcSetup(BuzzerPWMChannel, BuzzerPWMFreq, BuzzerPWMResolution);
+  ledcAttachPin(BUZZER_PIN, BuzzerPWMChannel);
+
+
+  ledcWriteTone(BuzzerPWMChannel, 2000);
   delay(200);
+  ledcWriteTone(BuzzerPWMChannel, 0);
   ledcWrite(PWMChannel, 0); 
 
   preferences.begin("reflowprofiles", false);
   delay(100);
   read_all_profiles();
 
-
-  Wire.begin(SDA_PIN, SCL_PIN);
-  delay(100);
   u8g2.begin();
   delay(100);
   t_new_page = millis();
@@ -405,7 +450,10 @@ void loop() {
     leds[0] = CRGB::Blue;
     FastLED.show();
     delay(50);
-
+    if(current_page == 10) {
+      i2cscan();
+      current_page = 0;
+    }
     if(pages[current_page].page.is_value){
       if(current_page == 1) {
         if(selected_profile < N_PROFILES-1)
@@ -480,8 +528,6 @@ void loop() {
     FastLED.show();
   }
 
-
-
   if(init_reflow){
     init_reflow = false;
 
@@ -523,7 +569,6 @@ void loop() {
     }
   }
 
-
   while(reflow_done){
     if(millis() > t_reflow_finish + 1000){
       t_reflow_finish = millis();
@@ -549,8 +594,6 @@ void loop() {
       }
     }
   }
-
-  
 
   if(running_reflow && preheat_done){
     int pid_error = int(pid_setpoint) - int(current_temperature1);
@@ -597,7 +640,6 @@ void loop() {
     }
   }
 
-
   if(init_const){
     init_const = false;
 
@@ -616,7 +658,6 @@ void loop() {
       FastLED.show();
     }
   }
-
 
   if(running_const){
     int pid_error = int(pid_setpoint) - int(current_temperature1);
@@ -676,13 +717,10 @@ void loop() {
     }
   }
 
-
-
   if(millis() >= t_display + 500){
     t_display = millis();
     update_display();
   }
-
   
   if(millis() >= t_thermo + 200){
     t_thermo = millis();
