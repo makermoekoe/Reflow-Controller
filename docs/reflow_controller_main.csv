@@ -28,7 +28,7 @@ Qty,Value,Device,Package,Parts,Description,POPULARITY,SPICEPREFIX
 2,MAX6675,MAX6675,SO8,"U1,U2",MAX6675ISA+T available on lcsc.com C16030,,
 1,MLT-5030-BUZZER,MLT-5030-BUZZER,MLT-5030-BUZZER,U10,ordered 10pcs MLT-5030 on aliexpress here : https://de.aliexpress.com/item/1005002497652538.html,,
 1,OLD_096_SSD1306_30P_2B,OLD_096_SSD1306_30P_2B,OLED_096_30P_B,U4,Ordered 0.96“ SSD1306 Display on aliexpress here : https://de.aliexpress.com/item/4000218553592.html (i used blue/white),,
-1,RT9193_SC70-5,RT9193_SC70-5,SC-70-5,U3,"did not find RT9193 in SC-70-5 package anywhere, used SC573V33RTRC from mouser as (hopefully) direct replacement. ATTENTION: ALL the chips on ali are SOT-23 not SC-70-5 !",,
+1,RT9193_SC70-5,RT9193_SC70-5,SC-70-5,U3,"did not find RT9193 in SC-70-5 package anywhere, used SC573V33RTRC from mouser as direct replacement (better than RT9193!). ATTENTION: ALL the chips on ali are SOT-23 not SC-70-5 !",,
 1,SWITCH_MS-22C01-G010,SWITCH_MS-22C01-G010,MS-22C01-G010,S1,Gull Wing SMD Switch available as C2837066 on lcsc.com,,
 1,UFL_ANT_CONNECTOR,UFL_ANT_CONNECTOR,UFL_ANT_CONNECTOR,U$3,"UFL Antenna Connector, I ordered Part.-No 1661 from mouser",,
 1,USB_C_C393939,USB_C_C393939,USBC_C393939,U9,16Pin USB-C Connector. Original C393939 from Youtube video/github assembly.txt is discontinued. C2765186 should be direct replacement with higher current support,,
