@@ -6,7 +6,7 @@ The Reflow-Controller was built to control different kinds of reflow ovens, hotp
 
 The [Youtube video](https://youtu.be/nffLDqJwJ3Q) shows the assembly of a complete reflow oven system and the first tests.
 
-Build & flash :
+## Build & flash :
 
 Using Visual Studio : Import "code" folder as project folder. Connect the pcb via usb, put the S1 switch to the lower position, hold and press GPIO0-button while resetting with the reset-button. ESP32 should come up as a serial port device. Select that corresponding port for flashing.
 Press compile & upload button.
@@ -31,7 +31,7 @@ Lib-versions are the latest ones when writing this.
 
 At the time of writing this, I did not yet find out, how to make the esptool.py settings in Visual Studio Code to be able to make the ESP32 chip settings (USB-CDC, SPIFFS etc etc). Therefore I currently use Arduino 2.0.3 IDE myself. Visual Studio Code has the advantage though, not to have to download&install dependencies (libraries) manually though. If anybody share some light into how to make these settings correctly in Visual Studio Code - you are mostly welcome to add this info by posting to issues section. TY.
 
-Features of the PCB:
+## Features of the PCB:
 
 - ESP32-S2 MCU
 - 2x MAX6675 thermocouple sensor input
