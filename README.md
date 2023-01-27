@@ -19,8 +19,9 @@ Then select ESP32S2-Dev Module as board in Arduino. You can make all ESP32-relat
 -"CPU Frequency" - 240MHz
 -"Core Debug Level" - Warn
 
-All others left by default / select the ones you think fits best. Currently no SPIFFS flash is being used - but I am working on usb/wifi connection functionality right now.
-Libraries required as dependency for the projhect in Arduino (as for 2.0.3 version I currently use, install them via Arduino Library Manager) :
+All others left by default / select the ones you think fits best.
+
+Libraries required as dependency for the project in Arduino (as for 2.0.3 version I currently use, install them via Arduino Library Manager) :
 - PID by Brett Beauregard - v 1.2.1
 - FastLED by Daniel Garcia - v 3.5.0
 - U8G2 by Oliver Kraus - v 2.33.15
