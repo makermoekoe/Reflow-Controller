@@ -26,8 +26,17 @@ Libraries required as dependency for the projhect in Arduino (as for 2.0.3 versi
 - U8G2 by Oliver Kraus - v 2.33.15
 - MAX6675 Library by Adafruit - v 1.1.0
 - Smoothed by Matthew Fryer - v 1.2
+- ESPAsync-WifiManager and all it`s dependencies (install via IDE library manager) - https://github.com/khoih-prog/ESPAsync_WiFiManager
 
 Lib-versions are the latest ones when writing this.
+
+##Wifi - Setup :
+Wifi will (currently!?) NOT work correctly when the board is powered by USB.
+This means, you can flash via USB without external power to the board, but, as the initial wifi-setup is blocking the normal program, you will need to power via external power, to get wifi set up correctly. Once wifi is set up, "normal" program will run as soon as wifi connected.
+Make sure to select the default 4MB flash partitioning scheme with SPIFFS when flashing.
+Process should be done as follows :
+Compile & flash => switch to external power => configure wifi by connecting to the esp32-provided AP => restart board on external. You can and should monitor the serial output via USB for the first startup via serial console anyhow, as it will show you debug info and the default wifi-password for the config ap. The caption page of the AP to do the wifi settings is listening on 192.168.4.1:80 once the AP is up.
+##OTA-Flash : once the board is connected to wifi, you can flash it over the air from then on. Simply select the network-connection port in Arduino, that should come up a few seconds after the board is powered and connected to wifi. Only downside/bug I found so far, is that often the flashing process in Arduino doesnt get the successful flash response and therefore keeps hanging in flash mechanism - making a restart of the IDE necessary. Apart from that, OTA works fine.
 
 (Note from p1ngb4ck, adding this section : ) At the time of writing this, I did not yet find out, how to make the esptool.py settings in Visual Studio Code to be able to make the ESP32 chip settings (USB-CDC, SPIFFS etc etc). Therefore I currently use Arduino 2.0.3 IDE myself. Visual Studio Code has the advantage though, not to have to download&install dependencies (libraries) manually though. If anybody share some light into how to make these settings correctly in Visual Studio Code - you are mostly welcome to add this info by posting to issues section. TY.
 
