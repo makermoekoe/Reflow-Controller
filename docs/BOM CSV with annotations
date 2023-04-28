@@ -1,0 +1,36 @@
+Qty;Value;Device;Package;Parts;Description;POPULARITY;SPICEPREFIX
+8;;MOLEX_2MM_2P;MOLEX_2MM_2P;-OUT+,OUT1,OUT2,SSR1,SSR2,TEMP1,TEMP2,VCC;Molex 1x2Pin Header Straight Plugin, e.g. C133060 on lcsc.com;;
+3;;PINHD-1X02_2.00;1X02M;B1,B2,B3;2.00 pitch PINHEADER – can be left empty;;
+1;;PINHD-1X03_2.54;1X03;SERVO;2.54 pitch PINHEADER – can be left empty;;
+1;;QWIIC_CONNECTORJS-1MM;1X04_1MM_RA;J2;SparkFun I2C Standard Qwiic Connector (I ordered Adafruit Accessories JST SH 4-pin Right Angle Connector in 10 pack from mouser);;
+2;;R-EU-0402-WOKEEPOUT;R0402;F2,F3;used for empty pads on pcb only (to be filled with 0402 inductors for wifi antenna in case – left empty on YT video).;;
+2;0,1µ;C-EUC0603;C0603;C4,C6;0603 SMD Capacitor 0,1uF;73;C
+4;0,1µ;C-EU_WO_KEEPOUT;C0603;C3,C5,C9,C20;0603 SMD Capacitor 0,1uF;;
+2;0R-JUMPA;0R-JUMPA;A0R-JMP;JMP1,JMP2;SMD 0R 0805 Jumper (SMD 0805 0R Resistor);3;
+11;10k;R-EU_WO_KEEPOUT;R0603;R1,R2,R3,R4,R5,R8,R9,R11,R12,R13,R20;SMD 0603 10k Ohms Resistor;;
+2;10p;C-EU_WO_KEEPOUT;C0603;C15,C21;SMD 0603 10pF capacitor;;
+7;10µ;C-EU_WO_KEEPOUT;C0603;C1,C7,C8,C13,C17,C18,C19;SMD 0603 10uF capacitor;;
+3;1µ;C-EU_WO_KEEPOUT;C0603;C2,C11,C12;SMD 0603 1uF capacitor;;
+2;2,2µ;C-EU_WO_KEEPOUT;C0603;C14,C16;SMD 0603 2.2uF capacitor;;
+1;390k;R-EU_WO_KEEPOUT;R0603;R21;SMD 0603 390k Ohms Resistor;;
+4;5.1k;R-EU_WO_KEEPOUT;R0603;R6,R7,R22,R23;SMD 0603 5.1k Ohms Resistor;;
+1;5.6pF;R-EU-0402-WOKEEPOUT;R0402;F1;SMD 0603 5.6pF capacitor;;
+1;APA102_2020;APA102_2020;APA102_2020;L1;Adafruit SMD 2020 APA102 LED (available on mouser (Adafruit Accessories DotStar Micro LEDs) as 10 pack);;
+3;BUTTON_4PIN_TS-1070A;BUTTON_4PIN_TS-1070A;BUTTON_WHITE_SMD;B4,B5,B6;TS-1070A is available on lcsc.com (white oval 3.25mm x 2.5mm oval button) Part no C492879;;
+2;BUTTON_4PIN_TS_1177;BUTTON_4PIN_TS_1177;TS-1177-C-B-B;GPIO0,RESET;TS-1177 is available on lcsc.com (2mm Black Round Button Brick nogging SPST SMD Tactile Switch) Part no C561512;;
+3;BUTTON_6X6_SILICON;BUTTON_6X6_SILICON;BUTTON_SILICON;BTN1,BTN2,BTN3;6x6 mm silicone buttons – ordered mine from aliexpress – look at the video, then search for 6x6 silicone button and loot out for matching in case following link does not work: https://de.aliexpress.com/item/1005002833747778.html;;
+3;DIODE_SOD123;DIODE_SOD123;SOD123;D1,D2,D4;These are protective diodes for use in parallel withs fans and buzzer. I ordered C475718 from lcsc.com (dunno if these are correct for the circuit);;
+1;ESP32_S2_QFN56_NEW;ESP32_S2_QFN56_NEW;QFN56_7X7;ESP;Ordered the ESP32-S2FN4R2 from mouser.com myself;;
+4;FIDUCIAL;FIDUCIAL;FIDUCIAL_1MM;U$1,U$2,U$4,U$5;For use by pick and place machines to calibrate the vision/machine,1mm (disregard, these are made in pcb production, no parts ordered);;
+1;HILINK_PM03;HILINK_PM03;HILINK_PM03;U11;I ordered HLK-PM12 on aliexpress;;
+5;IRLML2502;IRLML2502;SOT23;Q1,Q2,Q4,Q5,Q6;IRLML2502TRPBF is available on lcsc.com C2589;;
+1;LM1117;LM1117;SOT223;U8;TI LM1117MPX-3.3/NOPB available on lcsc.com C9662;;
+2;MAX6675;MAX6675;SO8;U1,U2;MAX6675ISA+T available on lcsc.com C16030;;
+1;MLT-5030-BUZZER;MLT-5030-BUZZER;MLT-5030-BUZZER;U10;ordered 10pcs MLT-5030 on aliexpress here : https://de.aliexpress.com/item/1005002497652538.html;;
+1;OLD_096_SSD1306_30P_2B;OLD_096_SSD1306_30P_2B;OLED_096_30P_B;U4;Ordered 0.96“ SSD1306 Display on aliexpress here : https://de.aliexpress.com/item/4000218553592.html (i used blue/white);;
+1;RT9193_SC70-5;RT9193_SC70-5;SC-70-5;U3;did not find RT9193 in SC-70-5 package anywhere, used SC573V33RTRC from mouser as (hopefully) direct replacement. ATTENTION: ALL the chips on ali are SOT-23 not SC-70-5 !;;
+1;SWITCH_MS-22C01-G010;SWITCH_MS-22C01-G010;MS-22C01-G010;S1;Gull Wing SMD Switch available as C2837066 on lcsc.com;;
+1;UFL_ANT_CONNECTOR;UFL_ANT_CONNECTOR;UFL_ANT_CONNECTOR;U$3;UFL Antenna Connector, I ordered Part.-No 1661 from mouser;;
+1;USB_C_C393939;USB_C_C393939;USBC_C393939;U9;16Pin USB-C Connector. Original C393939 from Youtube video/github assembly.txt is discontinued. C2765186 should be direct replacement with higher current support;;
+1;WAGO_AST045_2;WAGO_AST045_2;WAGO_AST045_2;MAIN;WAGO Klemmen. No need to get original WAGO ones. Just google WAGO and look at the video – these are just high quality cable clamps;;
+1;XTAL_2016;XTAL_2016;XTYL_2016;X1;40 MHz SMD 2016 Crystal. The one one in the video is C516561 from lcsc.com;;
